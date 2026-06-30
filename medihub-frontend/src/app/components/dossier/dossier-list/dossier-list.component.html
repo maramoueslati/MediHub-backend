@@ -1,0 +1,73 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>📋 Dossiers Médicaux</h1>
+      <p class="subtitle">{{ dossiers.length }} dossier(s) au total</p>
+    </div>
+    <button class="btn-primary" routerLink="/dossiers/nouveau">+ Nouveau dossier</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" placeholder="Rechercher par patient ID..." [(ngModel)]="searchPatientId" (input)="onSearch()" />
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading"><div class="spinner"></div></div>
+  <div *ngIf="error" class="error-banner">⚠️ {{ error }}</div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>N° Dossier</th>
+          <th>Patient ID</th>
+          <th>Médecin ID</th>
+          <th>Groupe Sanguin</th>
+          <th>Statut</th>
+          <th>Date création</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of filteredDossiers" class="table-row">
+          <td><strong>{{ d.numeroDossier }}</strong></td>
+          <td>{{ d.patientId }}</td>
+          <td>{{ d.medecinId || '—' }}</td>
+          <td><span class="badge">{{ d.groupeSanguin || '—' }}</span></td>
+          <td>
+            <span class="status-badge" [class]="d.statut === 'ACTIF' ? 'status-ok' : 'status-inactive'">
+              {{ d.statut }}
+            </span>
+          </td>
+          <td class="date-cell">{{ d.dateCreation | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-icon btn-view" [routerLink]="['/dossiers', d.id]">👁</button>
+              <button class="btn-icon btn-edit" [routerLink]="['/dossiers', d.id, 'modifier']">✏️</button>
+              <button class="btn-icon btn-delete" (click)="confirmer(d)">🗑</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredDossiers.length === 0">
+          <td colspan="7" class="empty-state">
+            <div>📋</div><p>Aucun dossier trouvé</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-overlay" *ngIf="dossierASupprimer">
+    <div class="modal">
+      <div class="modal-icon">🗑️</div>
+      <h3>Confirmer la suppression</h3>
+      <p>Supprimer le dossier <strong>{{ dossierASupprimer.numeroDossier }}</strong> ?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="dossierASupprimer = null">Annuler</button>
+        <button class="btn-danger" (click)="supprimer()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>

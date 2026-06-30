@@ -1,0 +1,45 @@
+.page { padding: 2.5rem 3rem; max-width: 1400px; margin: 0 auto; background: #fff; }
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.8rem; font-weight: 800; color: #2c4a52; margin: 0; }
+.subtitle { color: #6b8f95; margin: 0.25rem 0 0; font-size: 0.9rem; }
+
+.stats-row { display: flex; gap: 1rem; margin-bottom: 2rem; }
+
+.stat-card {
+  flex: 1; background: white; border-radius: 16px;
+  padding: 1.2rem 1.5rem; display: flex; align-items: center;
+  gap: 1rem; border: 2px solid #a8d5d1; border-left: 6px solid #a8d5d1;
+  cursor: pointer; transition: all 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.stat-icon { font-size: 2rem; }
+.stat-number { font-size: 1.8rem; font-weight: 800; color: #2c4a52; }
+.stat-label { font-size: 0.8rem; color: #6b8f95; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.modules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+.module-card {
+  background: white; border-radius: 20px; padding: 2rem;
+  border: 2px solid #a8d5d1; transition: all 0.2s; cursor: pointer;
+}
+.module-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.module-icon { font-size: 3rem; margin-bottom: 1rem; }
+.module-card h3 { font-size: 1.2rem; font-weight: 800; color: #2c4a52; margin: 0 0 0.5rem; }
+.module-card p { color: #6b8f95; font-size: 0.9rem; margin: 0 0 1.5rem; line-height: 1.5; }
+
+.module-actions { display: flex; gap: 0.5rem; }
+
+.btn-primary {
+  background: #e8856a; color: white; border: none;
+  padding: 0.6rem 1.2rem; border-radius: 10px; font-weight: 700;
+  cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+}
+.btn-primary:hover { background: #d4714f; }
+
+.btn-secondary {
+  background: #e8f5f5; color: #2c4a52; border: none;
+  padding: 0.6rem 1.2rem; border-radius: 10px; font-weight: 600;
+  cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+}
+.btn-secondary:hover { background: #a8d5d1; }

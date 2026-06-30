@@ -1,0 +1,137 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>👥 Gestion des Utilisateurs</h1>
+      <p class="subtitle">{{ utilisateurs.length }} utilisateur(s) enregistré(s)</p>
+    </div>
+    <button class="btn-primary" (click)="showForm = true">+ Nouvel utilisateur</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><span class="stat-icon">🏥</span><div><div class="stat-number">{{ countByRole('MEDECIN') }}</div><div class="stat-label">Médecins</div></div></div>
+    <div class="stat-card"><span class="stat-icon">🤒</span><div><div class="stat-number">{{ countByRole('PATIENT') }}</div><div class="stat-label">Patients</div></div></div>
+    <div class="stat-card"><span class="stat-icon">💊</span><div><div class="stat-number">{{ countByRole('PHARMACIEN') }}</div><div class="stat-label">Pharmaciens</div></div></div>
+    <div class="stat-card"><span class="stat-icon">🔬</span><div><div class="stat-number">{{ countByRole('TECHNICIEN_LABORATOIRE') }}</div><div class="stat-label">Techniciens</div></div></div>
+  </div>
+
+  <!-- Create form -->
+  <div class="form-card" *ngIf="showForm">
+    <h3>➕ Nouvel utilisateur</h3>
+    <div class="success-banner" *ngIf="success">✅ {{ success }}</div>
+    <div class="error-banner" *ngIf="error">⚠️ {{ error }}</div>
+    <form (ngSubmit)="creer()" #f="ngForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nom *</label>
+          <input type="text" [(ngModel)]="newUser.nom" name="nom" required />
+        </div>
+        <div class="form-group">
+          <label>Prénom *</label>
+          <input type="text" [(ngModel)]="newUser.prenom" name="prenom" required />
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" [(ngModel)]="newUser.email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label>Mot de passe *</label>
+          <input type="password" [(ngModel)]="newUser.password" name="password" required />
+        </div>
+        <div class="form-group">
+          <label>Rôle *</label>
+          <select [(ngModel)]="newUser.role" name="role" required>
+            <option value="PATIENT">Patient</option>
+            <option value="MEDECIN">Médecin</option>
+            <option value="PHARMACIEN">Pharmacien</option>
+            <option value="TECHNICIEN_LABORATOIRE">Technicien Laboratoire</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Téléphone</label>
+          <input type="text" [(ngModel)]="newUser.telephone" name="telephone" />
+        </div>
+        <div class="form-group" *ngIf="newUser.role === 'MEDECIN'">
+          <label>Spécialité</label>
+          <input type="text" [(ngModel)]="newUser.specialite" name="specialite" />
+        </div>
+        <div class="form-group">
+          <label>Adresse</label>
+          <input type="text" [(ngModel)]="newUser.adresse" name="adresse" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="showForm = false">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="f.invalid || loading">
+          {{ loading ? '⏳...' : '➕ Créer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="toolbar">
+    <div class="filter-tabs">
+      <button [class.active]="filter === 'tous'" (click)="setFilter('tous')">Tous</button>
+      <button [class.active]="filter === 'MEDECIN'" (click)="setFilter('MEDECIN')">Médecins</button>
+      <button [class.active]="filter === 'PATIENT'" (click)="setFilter('PATIENT')">Patients</button>
+      <button [class.active]="filter === 'PHARMACIEN'" (click)="setFilter('PHARMACIEN')">Pharmaciens</button>
+      <button [class.active]="filter === 'TECHNICIEN_LABORATOIRE'" (click)="setFilter('TECHNICIEN_LABORATOIRE')">Techniciens</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading"><div class="spinner"></div></div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Spécialité</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of filteredUsers" class="table-row">
+          <td>
+            <div class="med-name">{{ u.nom }} {{ u.prenom }}</div>
+          </td>
+          <td>{{ u.email }}</td>
+          <td><span class="badge">{{ u.role }}</span></td>
+          <td>{{ u.specialite || '—' }}</td>
+          <td>
+            <span class="status-badge" [class]="u.actif ? 'status-ok' : 'status-inactive'">
+              {{ u.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-icon btn-cancel" (click)="desactiver(u)" title="Désactiver"
+                *ngIf="u.actif">🚫</button>
+              <button class="btn-icon btn-delete" (click)="confirmer(u)" title="Supprimer">🗑</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="6" class="empty-state"><div>👥</div><p>Aucun utilisateur trouvé</p></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-overlay" *ngIf="userASupprimer">
+    <div class="modal">
+      <div class="modal-icon">🗑️</div>
+      <h3>Confirmer la suppression</h3>
+      <p>Supprimer <strong>{{ userASupprimer.nom }} {{ userASupprimer.prenom }}</strong> ?</p>
+      <p style="color: #e74c3c; font-size: 0.85rem;">⚠️ L'utilisateur sera aussi supprimé de Keycloak!</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="userASupprimer = null">Annuler</button>
+        <button class="btn-danger" (click)="supprimer()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>

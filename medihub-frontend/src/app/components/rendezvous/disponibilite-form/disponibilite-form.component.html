@@ -1,0 +1,54 @@
+<div class="page">
+  <div class="page-header">
+    <button class="btn-back" routerLink="/rendezvous">← Retour</button>
+    <h1>🗓 Disponibilités Médecins</h1>
+  </div>
+
+  <div class="two-col">
+    <div class="form-card">
+      <h3>➕ Ajouter une disponibilité</h3>
+      <form (ngSubmit)="ajouter()" #f="ngForm">
+        <div class="form-group">
+          <label>Médecin ID *</label>
+          <input type="number" [(ngModel)]="dispo.medecinId" name="medecinId" required />
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" [(ngModel)]="dispo.dateDisponibilite" name="dateDisponibilite" required />
+        </div>
+        <div class="form-group">
+          <label>Heure début *</label>
+          <input type="time" [(ngModel)]="dispo.heureDebut" name="heureDebut" required />
+        </div>
+        <div class="form-group">
+          <label>Heure fin *</label>
+          <input type="time" [(ngModel)]="dispo.heureFin" name="heureFin" required />
+        </div>
+        <div class="success-banner" *ngIf="success">✅ {{ success }}</div>
+        <button type="submit" class="btn-primary" [disabled]="f.invalid">Ajouter</button>
+      </form>
+    </div>
+
+    <div class="list-card">
+      <h3>🔍 Rechercher disponibilités</h3>
+      <div class="search-row">
+        <input type="date" [(ngModel)]="searchDate" placeholder="Par date" />
+        <button class="btn-secondary" (click)="rechercherParDate()">Chercher</button>
+      </div>
+      <div class="items-list">
+        <div *ngFor="let d of disponibilites" class="item-card">
+          <div class="item-info">
+            <strong>Médecin {{ d.medecinId }}</strong>
+            <span>📅 {{ d.dateDisponibilite }}</span>
+            <span>⏰ {{ d.heureDebut }} → {{ d.heureFin }}</span>
+          </div>
+          <span class="status-badge" [class]="d.disponible ? 'status-ok' : 'status-inactive'">
+            {{ d.disponible ? 'Disponible' : 'Indisponible' }}
+          </span>
+          <button class="btn-delete-small" (click)="supprimer(d.id!)">🗑</button>
+        </div>
+        <p *ngIf="disponibilites.length === 0" class="empty-tab">Aucune disponibilité trouvée</p>
+      </div>
+    </div>
+  </div>
+</div>

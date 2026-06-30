@@ -1,0 +1,78 @@
+.navbar {
+  background: #a8d5d1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;  /* ← spreads brand, links, user across full width */
+  padding: 0 2rem;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: nowrap;               /* ← prevents wrapping to next line */
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;                  /* ← don't shrink the logo */
+}
+
+.logo-icon { font-size: 1.5rem; }
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #2c4a52;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 1;                         /* ← takes available space */
+  justify-content: center;         /* ← centers the links */
+}
+
+.navbar-links a {
+  color: #2c4a52;
+  text-decoration: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;             /* ← prevents link text wrapping */
+}
+
+.navbar-links a:hover { background: rgba(44,74,82,0.1); }
+.navbar-links a.active { background: #e8856a; color: white; }
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-shrink: 0;                  /* ← don't shrink the user section */
+}
+
+.username {
+  color: #2c4a52;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.btn-logout {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-logout:hover { background: #c0392b; }

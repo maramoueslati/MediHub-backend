@@ -1,0 +1,95 @@
+═══════════════════════════════════════════════════════════════════════════
+ INSTRUCTIONS — Intégration OpenFeign dans dossier-medical-service
+═══════════════════════════════════════════════════════════════════════════
+
+1) pom.xml — ajouter cette dépendance :
+
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-openfeign</artifactId>
+    </dependency>
+
+2) DossierMedicalApplication.java — ajouter @EnableFeignClients :
+
+    package com.examplemicro.dossier;
+
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+    import org.springframework.cloud.openfeign.EnableFeignClients;
+
+    @SpringBootApplication
+    @EnableDiscoveryClient
+    @EnableFeignClients
+    public class DossierMedicalApplication {
+        public static void main(String[] args) {
+            SpringApplication.run(DossierMedicalApplication.class, args);
+        }
+    }
+
+3) Copier ces 3 fichiers dans le projet dossier-medical-service :
+    - dto/UtilisateurDTO.java          → com.examplemicro.dossier.dto
+    - dto/DossierEnrichiDTO.java       → com.examplemicro.dossier.dto
+    - client/UtilisateurClient.java    → com.examplemicro.dossier.client
+
+4) DossierMedicalService.java — ajouter l'injection du client Feign et
+   une nouvelle méthode getDossierEnrichi() :
+
+    // En haut du fichier, ajouter les imports :
+    import com.examplemicro.dossier.client.UtilisateurClient;
+    import com.examplemicro.dossier.dto.DossierEnrichiDTO;
+    import com.examplemicro.dossier.dto.UtilisateurDTO;
+
+    // Ajouter le champ et le modifier le constructeur :
+    private final UtilisateurClient utilisateurClient;
+
+    public DossierMedicalService(
+            DossierMedicalRepository dossierRepository,
+            OrdonnanceRepository ordonnanceRepository,
+            AnalyseRepository analyseRepository,
+            TraitementRepository traitementRepository,
+            UtilisateurClient utilisateurClient) {           // <-- nouveau paramètre
+        this.dossierRepository = dossierRepository;
+        this.ordonnanceRepository = ordonnanceRepository;
+        this.analyseRepository = analyseRepository;
+        this.traitementRepository = traitementRepository;
+        this.utilisateurClient = utilisateurClient;          // <-- nouvelle ligne
+    }
+
+    // Ajouter cette nouvelle méthode dans la section DOSSIER :
+    public DossierEnrichiDTO getDossierEnrichi(Long id) {
+        DossierMedical dossier = getDossierById(id);
+        UtilisateurDTO patient = utilisateurClient.getUserById(dossier.getPatientId());
+        UtilisateurDTO medecin = dossier.getMedecinId() != null
+                ? utilisateurClient.getUserById(dossier.getMedecinId())
+                : null;
+        return new DossierEnrichiDTO(dossier, patient, medecin);
+    }
+
+5) DossierMedicalController.java — ajouter le nouvel endpoint :
+
+    import com.examplemicro.dossier.dto.DossierEnrichiDTO;
+
+    @GetMapping("/{id}/enrichi")
+    public ResponseEntity<DossierEnrichiDTO> getDossierEnrichi(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(service.getDossierEnrichi(id));
+    }
+
+6) Tester :
+
+    GET http://localhost:8080/api/dossiers/1/enrichi
+
+    Réponse attendue :
+    {
+        "dossier": { "id": 1, "patientId": 3, "numeroDossier": "DOS-...", ... },
+        "patient": { "id": 3, "nom": "Ben Ali", "prenom": "Sami", "email": "...", "role": "PATIENT" },
+        "medecin": { "id": 5, "nom": "Trabelsi", "prenom": "Yassine", "specialite": "Cardiologie", "role": "MEDECIN" }
+    }
+
+═══════════════════════════════════════════════════════════════════════════
+ Même principe pour rendezvous-service (optionnel, même démarche) :
+ - ajouter spring-cloud-starter-openfeign
+ - @EnableFeignClients sur RendezVousApplication
+ - copier client/UtilisateurClient.java et dto/UtilisateurDTO.java
+ - injecter dans RendezVousService pour enrichir les réponses si besoin
+═══════════════════════════════════════════════════════════════════════════

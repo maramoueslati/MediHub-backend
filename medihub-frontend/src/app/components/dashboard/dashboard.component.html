@@ -1,0 +1,69 @@
+<div class="page">
+  <div class="page-header">
+    <h1>🏠 Tableau de bord MediHub</h1>
+    <p class="subtitle">Vue d'ensemble de la plateforme médicale</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card" routerLink="/medicaments">
+      <span class="stat-icon">💊</span>
+      <div>
+        <div class="stat-number">{{ totalMedicaments }}</div>
+        <div class="stat-label">Médicaments</div>
+      </div>
+    </div>
+    <div class="stat-card" routerLink="/medicaments">
+      <span class="stat-icon">⚠️</span>
+      <div>
+        <div class="stat-number">{{ ruptureCount }}</div>
+        <div class="stat-label">Ruptures de stock</div>
+      </div>
+    </div>
+    <div class="stat-card" routerLink="/dossiers">
+      <span class="stat-icon">📋</span>
+      <div>
+        <div class="stat-number">{{ totalDossiers }}</div>
+        <div class="stat-label">Dossiers médicaux</div>
+      </div>
+    </div>
+    <div class="stat-card" routerLink="/rendezvous">
+      <span class="stat-icon">📅</span>
+      <div>
+        <div class="stat-number">{{ totalRendezVous }}</div>
+        <div class="stat-label">Rendez-vous</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modules-grid">
+    <div class="module-card" routerLink="/medicaments">
+      <div class="module-icon">💊</div>
+      <h3>Pharmacie</h3>
+      <p>Gérer les médicaments, le stock et les disponibilités</p>
+      <div class="module-actions">
+        <button class="btn-primary" routerLink="/medicaments">Voir les médicaments</button>
+        <button class="btn-secondary" routerLink="/medicaments/nouveau">+ Nouveau</button>
+      </div>
+    </div>
+
+    <div class="module-card" routerLink="/dossiers">
+      <div class="module-icon">📋</div>
+      <h3>Dossiers Médicaux</h3>
+      <p>Gérer les dossiers patients, ordonnances, analyses et traitements</p>
+      <div class="module-actions">
+        <button class="btn-primary" routerLink="/dossiers">Voir les dossiers</button>
+        <button class="btn-secondary" routerLink="/dossiers/nouveau">+ Nouveau</button>
+      </div>
+    </div>
+
+    <div class="module-card" routerLink="/rendezvous">
+      <div class="module-icon">📅</div>
+      <h3>Rendez-vous</h3>
+      <p>Gérer les rendez-vous, disponibilités et historique</p>
+      <div class="module-actions">
+        <button class="btn-primary" routerLink="/rendezvous">Voir les rendez-vous</button>
+        <button class="btn-secondary" routerLink="/rendezvous/nouveau">+ Nouveau</button>
+      </div>
+    </div>
+  </div>
+</div>

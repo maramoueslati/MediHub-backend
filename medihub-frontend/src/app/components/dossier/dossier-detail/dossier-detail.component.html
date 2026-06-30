@@ -1,0 +1,119 @@
+<div class="page">
+  <button class="btn-back" routerLink="/dossiers">← Retour</button>
+
+  <div *ngIf="dossier" class="detail-card">
+    <div class="detail-header">
+      <div>
+        <h1>📋 {{ dossier.numeroDossier }}</h1>
+        <p>Patient ID: {{ dossier.patientId }} | Médecin ID: {{ dossier.medecinId || '—' }}</p>
+      </div>
+      <div class="header-actions">
+        <span class="status-badge status-ok">{{ dossier.statut }}</span>
+        <button class="btn-edit" [routerLink]="['/dossiers', dossier.id, 'modifier']">✏️ Modifier</button>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item"><span class="label">Groupe Sanguin</span><span class="value">{{ dossier.groupeSanguin || '—' }}</span></div>
+      <div class="info-item"><span class="label">Créé le</span><span class="value">{{ dossier.dateCreation | date:'dd/MM/yyyy' }}</span></div>
+      <div class="info-item full"><span class="label">Allergies</span><span class="value">{{ dossier.allergies || '—' }}</span></div>
+      <div class="info-item full"><span class="label">Antécédents</span><span class="value">{{ dossier.antecedents || '—' }}</span></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button [class.active]="activeTab === 'ordonnances'" (click)="activeTab = 'ordonnances'">💊 Ordonnances ({{ ordonnances.length }})</button>
+      <button [class.active]="activeTab === 'analyses'" (click)="activeTab = 'analyses'">🔬 Analyses ({{ analyses.length }})</button>
+      <button [class.active]="activeTab === 'traitements'" (click)="activeTab = 'traitements'">💉 Traitements ({{ traitements.length }})</button>
+    </div>
+
+    <!-- Ordonnances Tab -->
+    <div *ngIf="activeTab === 'ordonnances'" class="tab-content">
+      <div class="tab-header">
+        <h3>Ordonnances</h3>
+        <button class="btn-primary" (click)="showOrdonnanceForm = true">+ Ajouter</button>
+      </div>
+      <div *ngIf="showOrdonnanceForm" class="inline-form">
+        <textarea [(ngModel)]="newOrdonnance.description" placeholder="Description *" rows="2"></textarea>
+        <input type="text" [(ngModel)]="newOrdonnance.medicaments" placeholder="Médicaments" />
+        <input type="text" [(ngModel)]="newOrdonnance.posologie" placeholder="Posologie" />
+        <input type="text" [(ngModel)]="newOrdonnance.medecinPrescripteur" placeholder="Médecin prescripteur" />
+        <div class="inline-actions">
+          <button class="btn-secondary" (click)="showOrdonnanceForm = false">Annuler</button>
+          <button class="btn-primary" (click)="ajouterOrdonnance()">Enregistrer</button>
+        </div>
+      </div>
+      <div class="items-list">
+        <div *ngFor="let o of ordonnances" class="item-card">
+          <div class="item-info">
+            <strong>{{ o.description }}</strong>
+            <span *ngIf="o.medicaments">💊 {{ o.medicaments }}</span>
+            <span *ngIf="o.posologie">📋 {{ o.posologie }}</span>
+            <span *ngIf="o.medecinPrescripteur">👨‍⚕️ {{ o.medecinPrescripteur }}</span>
+          </div>
+          <button class="btn-delete-small" (click)="supprimerOrdonnance(o.id!)">🗑</button>
+        </div>
+        <p *ngIf="ordonnances.length === 0" class="empty-tab">Aucune ordonnance</p>
+      </div>
+    </div>
+
+    <!-- Analyses Tab -->
+    <div *ngIf="activeTab === 'analyses'" class="tab-content">
+      <div class="tab-header">
+        <h3>Analyses & Examens</h3>
+        <button class="btn-primary" (click)="showAnalyseForm = true">+ Ajouter</button>
+      </div>
+      <div *ngIf="showAnalyseForm" class="inline-form">
+        <input type="text" [(ngModel)]="newAnalyse.typeAnalyse" placeholder="Type d'analyse *" />
+        <input type="text" [(ngModel)]="newAnalyse.laboratoire" placeholder="Laboratoire" />
+        <textarea [(ngModel)]="newAnalyse.description" placeholder="Description" rows="2"></textarea>
+        <div class="inline-actions">
+          <button class="btn-secondary" (click)="showAnalyseForm = false">Annuler</button>
+          <button class="btn-primary" (click)="ajouterAnalyse()">Enregistrer</button>
+        </div>
+      </div>
+      <div class="items-list">
+        <div *ngFor="let a of analyses" class="item-card">
+          <div class="item-info">
+            <strong>{{ a.typeAnalyse }}</strong>
+            <span *ngIf="a.laboratoire">🏥 {{ a.laboratoire }}</span>
+            <span *ngIf="a.resultats">📊 {{ a.resultats }}</span>
+          </div>
+          <span class="status-badge" [class]="a.statut === 'TERMINE' ? 'status-ok' : 'status-pending'">{{ a.statut }}</span>
+          <button class="btn-delete-small" (click)="supprimerAnalyse(a.id!)">🗑</button>
+        </div>
+        <p *ngIf="analyses.length === 0" class="empty-tab">Aucune analyse</p>
+      </div>
+    </div>
+
+    <!-- Traitements Tab -->
+    <div *ngIf="activeTab === 'traitements'" class="tab-content">
+      <div class="tab-header">
+        <h3>Traitements</h3>
+        <button class="btn-primary" (click)="showTraitementForm = true">+ Ajouter</button>
+      </div>
+      <div *ngIf="showTraitementForm" class="inline-form">
+        <input type="text" [(ngModel)]="newTraitement.nom" placeholder="Nom du traitement *" />
+        <input type="text" [(ngModel)]="newTraitement.medicament" placeholder="Médicament" />
+        <input type="text" [(ngModel)]="newTraitement.posologie" placeholder="Posologie" />
+        <input type="text" [(ngModel)]="newTraitement.duree" placeholder="Durée (ex: 3 mois)" />
+        <div class="inline-actions">
+          <button class="btn-secondary" (click)="showTraitementForm = false">Annuler</button>
+          <button class="btn-primary" (click)="ajouterTraitement()">Enregistrer</button>
+        </div>
+      </div>
+      <div class="items-list">
+        <div *ngFor="let t of traitements" class="item-card">
+          <div class="item-info">
+            <strong>{{ t.nom }}</strong>
+            <span *ngIf="t.medicament">💊 {{ t.medicament }}</span>
+            <span *ngIf="t.duree">⏱ {{ t.duree }}</span>
+          </div>
+          <span class="status-badge" [class]="t.statut === 'TERMINE' ? 'status-ok' : 'status-pending'">{{ t.statut }}</span>
+          <button class="btn-delete-small" (click)="supprimerTraitement(t.id!)">🗑</button>
+        </div>
+        <p *ngIf="traitements.length === 0" class="empty-tab">Aucun traitement</p>
+      </div>
+    </div>
+  </div>
+</div>

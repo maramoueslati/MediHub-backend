@@ -1,0 +1,104 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>📅 Rendez-vous</h1>
+      <p class="subtitle">{{ rendezvous.length }} rendez-vous au total</p>
+    </div>
+    <button class="btn-primary" routerLink="/rendezvous/nouveau">+ Nouveau RDV</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><span class="stat-icon">📅</span><div><div class="stat-number">{{ totalCount }}</div><div class="stat-label">Total</div></div></div>
+    <div class="stat-card"><span class="stat-icon">✅</span><div><div class="stat-number">{{ confirmeCount }}</div><div class="stat-label">Confirmés</div></div></div>
+    <div class="stat-card"><span class="stat-icon">⏳</span><div><div class="stat-number">{{ planifieCount }}</div><div class="stat-label">Planifiés</div></div></div>
+    <div class="stat-card"><span class="stat-icon">❌</span><div><div class="stat-number">{{ annuleCount }}</div><div class="stat-label">Annulés</div></div></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="filter-tabs">
+      <button [class.active]="filter === 'tous'" (click)="setFilter('tous')">Tous</button>
+      <button [class.active]="filter === 'PLANIFIE'" (click)="setFilter('PLANIFIE')">Planifiés</button>
+      <button [class.active]="filter === 'CONFIRME'" (click)="setFilter('CONFIRME')">Confirmés</button>
+      <button [class.active]="filter === 'ANNULE'" (click)="setFilter('ANNULE')">Annulés</button>
+      <button [class.active]="filter === 'TERMINE'" (click)="setFilter('TERMINE')">Terminés</button>
+      <button [class.active]="filter === 'REPORTE'" (click)="setFilter('REPORTE')">Reportés</button>
+    </div>
+    <button class="btn-secondary" routerLink="/rendezvous/disponibilites">🗓 Disponibilités</button>
+  </div>
+
+  <div *ngIf="loading" class="loading"><div class="spinner"></div></div>
+  <div *ngIf="error" class="error-banner">⚠️ {{ error }}</div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>Date & Heure</th>
+          <th>Patient ID</th>
+          <th>Médecin ID</th>
+          <th>Motif</th>
+          <th>Statut</th>
+          <th>Créateur</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRdv" class="table-row">
+          <td>
+            <div class="date-cell">
+              <strong>{{ r.dateRendezVous }}</strong>
+              <span>{{ r.heureRendezVous }}</span>
+            </div>
+          </td>
+          <td>{{ r.patientId }}</td>
+          <td>{{ r.medecinId }}</td>
+          <td>{{ r.motif || '—' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatutClass(r.statut!)">{{ r.statut }}</span>
+          </td>
+          <td><span class="badge">{{ r.createur }}</span></td>
+          <td>
+            <div class="action-buttons">
+              <!-- View - always visible -->
+              <button class="btn-icon btn-view" [routerLink]="['/rendezvous', r.id]" title="Voir">👁</button>
+
+              <!-- CONFIRME - MEDECIN only - only when PLANIFIE -->
+              <button class="btn-icon btn-confirm" (click)="confirmerRdv(r)" title="Confirmer (Médecin)"
+                *ngIf="r.statut === 'PLANIFIE'">✅</button>
+
+              <!-- TERMINE - MEDECIN only - only when CONFIRME -->
+              <button class="btn-icon btn-done" (click)="terminerRdv(r)" title="Terminer (Médecin)"
+                *ngIf="r.statut === 'CONFIRME'">🏁</button>
+
+              <!-- REPORTE - PATIENT or MEDECIN - when PLANIFIE or CONFIRME -->
+              <button class="btn-icon btn-report" (click)="reporterRdv(r)" title="Reporter"
+                *ngIf="r.statut === 'PLANIFIE' || r.statut === 'CONFIRME'">🔄</button>
+
+              <!-- ANNULE - PATIENT or MEDECIN - not when already ANNULE or TERMINE -->
+              <button class="btn-icon btn-cancel" (click)="annulerRdv(r)" title="Annuler"
+                *ngIf="r.statut !== 'ANNULE' && r.statut !== 'TERMINE'">❌</button>
+
+              <!-- DELETE - always visible -->
+              <button class="btn-icon btn-delete" (click)="confirmerSuppression(r)" title="Supprimer">🗑</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredRdv.length === 0">
+          <td colspan="7" class="empty-state"><div>📅</div><p>Aucun rendez-vous trouvé</p></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-overlay" *ngIf="rdvASupprimer">
+    <div class="modal">
+      <div class="modal-icon">🗑️</div>
+      <h3>Confirmer la suppression</h3>
+      <p>Supprimer ce rendez-vous du <strong>{{ rdvASupprimer.dateRendezVous }}</strong> ?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="rdvASupprimer = null">Annuler</button>
+        <button class="btn-danger" (click)="supprimer()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>
