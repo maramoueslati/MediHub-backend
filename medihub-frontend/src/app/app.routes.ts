@@ -27,14 +27,14 @@ export const routes: Routes = [
   { path: 'dossiers/:id', component: DossierDetailComponent },
   { path: 'dossiers/:id/modifier', component: DossierFormComponent },
 
-  // Rendez-vous
+  // Rendez-vous ← specific routes BEFORE :id
   { path: 'rendezvous', component: RendezVousListComponent },
-  { path: 'rendezvous/nouveau', component: RendezVousFormComponent },
-  { path: 'rendezvous/disponibilites', component: DisponibiliteFormComponent },
-  { path: 'rendezvous/:id', component: RendezVousFormComponent },
+  { path: 'rendezvous/nouveau', component: RendezVousFormComponent },          // ← 1st
+  { path: 'rendezvous/disponibilites', component: DisponibiliteFormComponent },// ← 2nd
+  { path: 'rendezvous/:id', component: RendezVousFormComponent },              // ← 3rd (last!)
 
   // Utilisateurs
   { path: 'users', component: UserListComponent },
 
-  { path: '**', redirectTo: '/dashboard' }  // ← always LAST
+  { path: '**', redirectTo: '/dashboard' }
 ];

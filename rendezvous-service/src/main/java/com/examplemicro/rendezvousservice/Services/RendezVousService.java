@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import com.examplemicro.rendezvousservice.dto.RendezVousEnrichiDTO;
+import com.examplemicro.rendezvousservice.dto.UtilisateurDTO;
+import com.examplemicro.rendezvousservice.client.UtilisateurClient;
 @Service
 @Transactional
 public class RendezVousService {
@@ -20,16 +22,21 @@ public class RendezVousService {
     private final RendezVousRepository rendezVousRepository;
     private final DisponibiliteMedecinRepository disponibiliteRepository;
     private final HistoriqueRendezVousRepository historiqueRepository;
+    private final UtilisateurClient utilisateurClient;
+    private final NotificationProducer notificationProducer;
 
     public RendezVousService(
             RendezVousRepository rendezVousRepository,
             DisponibiliteMedecinRepository disponibiliteRepository,
-            HistoriqueRendezVousRepository historiqueRepository) {
+            HistoriqueRendezVousRepository historiqueRepository,
+            UtilisateurClient utilisateurClient,
+            NotificationProducer notificationProducer) {    // ← ADD THIS
         this.rendezVousRepository = rendezVousRepository;
         this.disponibiliteRepository = disponibiliteRepository;
         this.historiqueRepository = historiqueRepository;
+        this.utilisateurClient = utilisateurClient;
+        this.notificationProducer = notificationProducer;   // ← ADD THIS
     }
-
     // ─── RENDEZ-VOUS ────────────────────────────────────────────────────────────
 
     public List<RendezVous> getAllRendezVous() {
@@ -65,6 +72,7 @@ public class RendezVousService {
         RendezVous saved = rendezVousRepository.save(rendezVous);
         enregistrerHistorique(saved.getId(), "CREATION", null,
                 saved.getStatut().name(), "Rendez-vous créé", saved.getCreateur());
+        notificationProducer.envoyerNotification(saved, "RDV_CREE");
         return saved;
     }
 
@@ -83,7 +91,7 @@ public class RendezVousService {
         RendezVous saved = rendezVousRepository.save(existing);
         enregistrerHistorique(id, "MODIFICATION", ancienStatut,
                 saved.getStatut().name(), "Rendez-vous modifié", updated.getCreateur());
-        return saved;
+         return saved;
     }
 
     public RendezVous changerStatut(Long id, RendezVous.StatutRendezVous nouveauStatut, String acteur) {
@@ -91,8 +99,14 @@ public class RendezVousService {
         String ancienStatut = existing.getStatut().name();
         existing.setStatut(nouveauStatut);
         RendezVous saved = rendezVousRepository.save(existing);
+
+        // historique
         enregistrerHistorique(id, "CHANGEMENT_STATUT", ancienStatut,
                 nouveauStatut.name(), "Statut modifié par " + acteur, acteur);
+
+        // notification RabbitMQ
+        notificationProducer.envoyerNotification(saved, "RDV_" + nouveauStatut.name());
+
         return saved;
     }
 
@@ -152,5 +166,11 @@ public class RendezVousService {
         historique.setDetails(details);
         historique.setEffectuePar(effectuePar);
         historiqueRepository.save(historique);
+    }
+    public RendezVousEnrichiDTO getRendezVousEnrichi(Long id) {
+        RendezVous rdv = getRendezVousById(id);
+        UtilisateurDTO patient = utilisateurClient.getUserById(rdv.getPatientId());
+        UtilisateurDTO medecin = utilisateurClient.getUserById(rdv.getMedecinId());
+        return new RendezVousEnrichiDTO(rdv, patient, medecin);
     }
 }

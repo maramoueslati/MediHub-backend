@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import com.examplemicro.rendezvousservice.dto.RendezVousEnrichiDTO;
 @RestController
 @RequestMapping("/api/rendezvous")
 public class RendezVousController {
@@ -132,5 +132,10 @@ public class RendezVousController {
     @GetMapping("/{id}/historique")
     public List<HistoriqueRendezVous> getHistorique(@PathVariable("id") Long id) {
         return service.getHistoriqueByRendezVous(id);
+    }
+    @GetMapping("/{id}/enrichi")
+    public ResponseEntity<RendezVousEnrichiDTO> getRendezVousEnrichi(
+            @PathVariable("id") Long id) {
+        return ResponseEntity.ok(service.getRendezVousEnrichi(id));
     }
 }
